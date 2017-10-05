@@ -1,0 +1,20 @@
+﻿{
+  "count": 2,
+  "href": "/app/rest/buildQueue?locator=project:reallycoolproject",
+  "build": [
+    {
+      "id": 12345,
+      "buildTypeId": "buildwebsite",
+      "state": "queued",
+      "href": "/app/rest/buildQueue/id:12345",
+      "webUrl": "http://host.com/viewQueued.html?itemId=12345"
+    },
+    {
+      "id": 12346,
+      "buildTypeId": "buildapi",
+      "state": "queued",
+      "href": "/app/rest/buildQueue/id:12346",
+      "webUrl": "http://host.com/viewQueued.html?itemId=12346"
+    }
+  ]
+}

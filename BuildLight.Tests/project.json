@@ -1,0 +1,18 @@
+﻿{
+  "dependencies": {
+    "Microsoft.IoT.Lightning": "1.1.0",
+    "Moq": "4.7.99",
+    "System.Diagnostics.TraceSource": "4.0.0",
+    "System.Net.Http": "4.1.0",
+    "System.Reflection": "4.3.0",
+    "xunit": "2.2.0"
+  },
+  "frameworks": {
+    "uap10.0.10586": {}
+  },
+  "runtimes": {
+    "win10-arm": {},
+    "win10-x86": {},
+    "win10-x64": {}
+  }
+}

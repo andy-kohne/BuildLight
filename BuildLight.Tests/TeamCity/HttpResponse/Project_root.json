@@ -1,0 +1,40 @@
+﻿{
+    "id": "_Root",
+    "name": "<Root project>",
+    "description": "Contains all other projects",
+    "href": "/app/rest/projects/id:_Root",
+    "webUrl": "http://host.com/project.html?projectId=_Root",
+    "buildTypes": {
+        "count": 0,
+        "buildType": []
+    },
+    "templates": {
+        "count": 0,
+        "buildType": []
+    },
+    "parameters": {
+        "count": 0,
+        "href": "/app/rest/projects/id:_Root/parameters",
+        "property": []
+    },
+    "vcsRoots": {
+        "count": 0,
+        "href": "/app/rest/vcs-roots?locator=project:(id:_Root)"
+    },
+    "projectFeatures": {
+        "count": 0,
+        "href": "/app/rest/projects/id:_Root/projectFeatures"
+    },
+    "projects": {
+        "count": 1,
+        "project": [
+            {
+                "id": "reallycoolproject",
+                "name": "Really Cool Project",
+                "parentProjectId": "_Root",
+                "href": "/app/rest/projects/id:reallycoolproject",
+                "webUrl": "http://host.com/project.html?projectId=reallycoolproject"
+            }
+        ]
+    }
+}
