@@ -120,7 +120,6 @@
     <Compile Include="Services\BuildMonitor\ServiceEventArgs.cs" />
     <Compile Include="Services\Enumerations.cs" />
     <Compile Include="Services\TeamCity\AuthenticationException.cs" />
-    <Compile Include="Services\TeamCity\HttpApiClient.cs" />
     <Compile Include="Services\TeamCity\Status.cs" />
     <Compile Include="Services\TeamCity\TeamCityApiClient.cs" />
     <Compile Include="Services\VisualizationService.cs" />
