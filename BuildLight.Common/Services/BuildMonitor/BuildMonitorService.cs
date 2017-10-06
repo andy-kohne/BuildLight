@@ -9,84 +9,102 @@ using System.Threading.Tasks;
 
 namespace BuildLight.Common.Services.BuildMonitor
 {
-    public class BuildMonitorService
+    public interface IBuildMonitorService
+    {
+        event EventHandler<ServiceEventArgs> ServiceEvent;
+        event EventHandler<BuildStatusEventArgs> BuildStatusEvent;
+
+        Task MonitorAsync(CancellationToken cancellationToken);
+    }
+
+    public class BuildMonitorService : IBuildMonitorService
     {
         public event EventHandler<ServiceEventArgs> ServiceEvent;
         public event EventHandler<BuildStatusEventArgs> BuildStatusEvent;
 
         private readonly Settings _settings;
-        private readonly CancellationToken _cancellationToken;
         private readonly ITeamCityApiClient _teamCityApiClient;
 
         private Dictionary<Project, ProjectSettings> _projects;
         private Dictionary<string, Status> _projectStatuses;
 
-        public BuildMonitorService(ITeamCityApiClient teamCityApiClient, Settings settings, CancellationToken cancellationToken)
+        public BuildMonitorService(ITeamCityApiClient teamCityApiClient, Settings settings)
         {
             _settings = settings;
             _teamCityApiClient = teamCityApiClient;
-            _cancellationToken = cancellationToken;
-
-            Task.Run(async () => { await MonitorAsync(); }, _cancellationToken);
         }
 
-        private async Task MonitorAsync()
+        public async Task MonitorAsync(CancellationToken cancellationToken)
         {
-            var keepRunning = true;
-            await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.Starting));
-            while (keepRunning)
+            try
             {
-                if (_cancellationToken.IsCancellationRequested) return;
-                try
+                var keepRunning = true;
+                await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.Starting), cancellationToken);
+                while (keepRunning)
                 {
-                    await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.BeginningQuery));
-
-                    if (_projects == null)
+                    if (cancellationToken.IsCancellationRequested) return;
+                    try
                     {
-                        _projects = (await _teamCityApiClient.GetProjectsAsync(_cancellationToken))
-                                    .Where(p => _settings.Projects.Any(s => string.Equals(s.Name, p.Name, StringComparison.OrdinalIgnoreCase)))
-                                    .ToDictionary(p => p, p => _settings.Projects.Single(s => string.Equals(s.Name, p.Name, StringComparison.OrdinalIgnoreCase)));
-                        _projectStatuses = _projects.Keys.ToDictionary(o => o.Name, o => Status.Unknown);
-                    }
+                        await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.BeginningQuery),
+                            cancellationToken);
 
-                    await GetCurrentStatusAsync();
+                        if (_projects == null)
+                        {
+                            _projects = (await _teamCityApiClient.GetProjectsAsync(cancellationToken))
+                                .Where(p => _settings.Projects.Any(s =>
+                                    string.Equals(s.Name, p.Name, StringComparison.OrdinalIgnoreCase)))
+                                .ToDictionary(p => p,
+                                    p => _settings.Projects.Single(s =>
+                                        string.Equals(s.Name, p.Name, StringComparison.OrdinalIgnoreCase)));
+                            _projectStatuses = _projects.Keys.ToDictionary(o => o.Name, o => Status.Unknown);
+                        }
+
+                        await GetCurrentStatusAsync(cancellationToken);
+                    }
+                    catch (AuthenticationException)
+                    {
+                        await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.AuthenticationError),
+                            cancellationToken);
+                        keepRunning = false;
+                    }
+                    catch (Exception)
+                    {
+                        await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.QueryError),
+                            cancellationToken);
+                    }
+                    if (!keepRunning) continue;
+                    await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.CompletedQuery),
+                        cancellationToken);
+                    await Task.Delay(_settings.PollingTimespan, cancellationToken);
                 }
-                catch (AuthenticationException)
-                {
-                    keepRunning = false;
-                }
-                catch (Exception)
-                {
-                    await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.QueryError));
-                }
-                if (!keepRunning) continue;
-                await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.CompletedQuery));
-                await Task.Delay(_settings.PollingTimespan, _cancellationToken);
+                await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.Ending), cancellationToken);
             }
-            await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.Ending));
+            catch (TaskCanceledException)
+            {
+                await RaiseEventAsync(ServiceEvent, new ServiceEventArgs(ServiceEventCode.Ending), CancellationToken.None);
+            }
         }
 
-        private async Task GetCurrentStatusAsync()
+        private async Task GetCurrentStatusAsync(CancellationToken cancellationToken)
         {
             foreach (var p in _projects.Keys)
             {
-                var projectsStatus = await _teamCityApiClient.GetCurrentProjectStatusAsync(p, _projects[p].IgnoredBuildConfigs, _cancellationToken);
+                var projectsStatus = await _teamCityApiClient.GetCurrentProjectStatusAsync(p, _projects[p].IgnoredBuildConfigs, cancellationToken);
                 if (_projectStatuses[p.Name] != projectsStatus)
                 {
                     _projectStatuses[p.Name] = projectsStatus;
-                    await RaiseEventAsync(BuildStatusEvent, new BuildStatusEventArgs(p, projectsStatus));
+                    await RaiseEventAsync(BuildStatusEvent, new BuildStatusEventArgs(p, projectsStatus), cancellationToken);
                 }
             }
         }
 
-        private async Task RaiseEventAsync<T>(EventHandler<T> handler, T args)
+        private async Task RaiseEventAsync<T>(EventHandler<T> handler, T args, CancellationToken cancellationToken)
         {
             await Task.Run(() =>
             {
                 var handlerCopy = handler;
                 handlerCopy?.Invoke(this, args);
-            }, _cancellationToken);
+            }, cancellationToken);
         }
-
     }
 }

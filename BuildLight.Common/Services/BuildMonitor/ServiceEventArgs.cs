@@ -8,7 +8,8 @@ namespace BuildLight.Common.Services.BuildMonitor
         Ending,
         BeginningQuery,
         CompletedQuery,
-        QueryError
+        QueryError,
+        AuthenticationError
     }
 
     public class ServiceEventArgs : EventArgs

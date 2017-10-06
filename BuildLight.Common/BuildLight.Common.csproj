@@ -114,7 +114,6 @@
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Models\Visualization.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\BuildMonitor\BuildInstanceStatusEventArgs.cs" />
     <Compile Include="Services\BuildMonitor\BuildMonitorService.cs" />
     <Compile Include="Services\BuildMonitor\BuildStatusEventArgs.cs" />
     <Compile Include="Services\BuildMonitor\ServiceEventArgs.cs" />

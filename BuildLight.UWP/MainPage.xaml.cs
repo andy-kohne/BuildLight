@@ -13,7 +13,7 @@ namespace BuildLight.UWP
 {
     public sealed partial class MainPage : Page
     {
-        readonly BuildMonitorService _buildMonitorService;
+        readonly IBuildMonitorService _buildMonitorService;
         readonly VisualizationService _visualizationService;
         readonly CancellationToken _cancellationToken;
 
@@ -27,8 +27,9 @@ namespace BuildLight.UWP
 
             _visualizationService = new VisualizationService(settings.Visualizations, _cancellationToken);
 
-            _buildMonitorService = new BuildMonitorService(tcApiClient, settings, _cancellationToken);
+            _buildMonitorService = new BuildMonitorService(tcApiClient, settings);
             _buildMonitorService.BuildStatusEvent += _visualizationService.HandleBuildEvent;
+            _buildMonitorService.MonitorAsync(_cancellationToken);
         }
 
         private async Task<Settings> GetSettingsAsync()
