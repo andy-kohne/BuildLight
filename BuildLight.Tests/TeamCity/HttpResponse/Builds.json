@@ -1,0 +1,82 @@
+﻿{
+  "buildType": [
+    {
+      "id": "buildwebsite",
+      "name": "Build Website",
+      "builds": {
+        "build": [
+          {
+            "number": "0.1.1002",
+            "status": "SUCCESS",
+            "state": "finished",
+            "statusText": "Tests passed: 123, ignored: 45"
+          },
+          {
+            "number": "0.1.1001",
+            "status": "SUCCESS",
+            "state": "finished",
+            "statusText": "Tests passed: 123, ignored: 45"
+          },
+          {
+            "number": "0.1.1000",
+            "status": "SUCCESS",
+            "state": "finished",
+            "statusText": "Tests passed: 123, ignored: 45"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buildapi",
+      "name": "Build Api",
+      "builds": {
+        "build": [
+          {
+            "number": "0.1.1103",
+            "status": "SUCCESS",
+            "state": "finished",
+            "statusText": "Tests passed: 1234, ignored: 56"
+          },
+          {
+            "number": "0.1.1102",
+            "status": "SUCCESS",
+            "state": "finished",
+            "statusText": "Tests passed: 1234, ignored: 56"
+          },
+          {
+            "number": "0.1.1101",
+            "status": "SUCCESS",
+            "state": "finished",
+            "statusText": "Tests passed: 1234, ignored: 56"
+          }
+        ]
+      }
+    },
+    {
+      "id": "buildservice",
+      "name": "Build Service",
+      "builds": {
+        "build": [
+          {
+            "number": "0.1.802",
+            "status": "SUCCESS",
+            "state": "running",
+            "statusText": "GetCopyToOutputDirectoryItems"
+          },
+          {
+            "number": "0.1.801",
+            "status": "SUCCESS",
+            "state": "finished",
+            "statusText": "Tests passed: 12, ignored: 3"
+          },
+          {
+            "number": "0.1.800",
+            "status": "SUCCESS",
+            "state": "finished",
+            "statusText": "Tests passed: 12, ignored: 3"
+          }
+        ]
+      }
+    }
+  ]
+}

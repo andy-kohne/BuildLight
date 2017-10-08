@@ -2,7 +2,6 @@
 using BuildLight.Common.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -49,25 +48,13 @@ namespace BuildLight.Common.Services.TeamCity
 
         private static async Task<string> GetAsync(HttpClient apiClient, string apiUrl, CancellationToken cancellationToken)
         {
-            string responseBody = null;
-
-            try
+            using (var response = apiClient.GetAsync(apiUrl, cancellationToken).Result)
             {
+                if (response.StatusCode == HttpStatusCode.Unauthorized) throw new AuthenticationException();
 
-                using (var response = apiClient.GetAsync(apiUrl, cancellationToken).Result)
-                {
-                    if (response.StatusCode == HttpStatusCode.Unauthorized) throw new AuthenticationException();
-
-                    response.EnsureSuccessStatusCode();
-                    responseBody = await response.Content.ReadAsStringAsync();
-                }
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-
-            return responseBody;
         }
 
         private string ProjectsUrl => $"{_host}/httpAuth/app/rest/projects";
@@ -78,7 +65,7 @@ namespace BuildLight.Common.Services.TeamCity
             var resp = await GetAsync<ProjectsResponse>(ProjectsUrl, cancellationToken);
             foreach (var p in resp.Project)
             {
-                projects.Add( await GetAsync<Project>($"{_host}{p.Href}", cancellationToken));
+                projects.Add(await GetAsync<Project>($"{_host}{p.Href}", cancellationToken));
             }
             return projects;
         }

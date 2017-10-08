@@ -1,11 +1,11 @@
-using Windows.Devices.Pwm;
+using BuildLight.Common.Services;
 
 namespace BuildLight.Common.Models
 {
     public class RgbPinSet
     {
-        public PwmPin Red { get; set; }
-        public PwmPin Green { get; set; }
-        public PwmPin Blue { get; set; }
+        public IPwmPin Red { get; set; }
+        public IPwmPin Green { get; set; }
+        public IPwmPin Blue { get; set; }
     }
 }

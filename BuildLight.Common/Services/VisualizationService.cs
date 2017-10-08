@@ -2,62 +2,51 @@
 using BuildLight.Common.Models;
 using BuildLight.Common.Services.BuildMonitor;
 using BuildLight.Common.Services.TeamCity;
-using Microsoft.IoT.Lightning.Providers;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Devices;
-using Windows.Devices.Pwm;
 using Windows.UI;
 
 namespace BuildLight.Common.Services
 {
-    public class VisualizationService
+    public interface IVisualizationService
     {
-        private Visualization[] _visualizations;
-        private PwmController _pwmController;
+        void Run(CancellationToken cancellationToken);
+        void HandleBuildEvent(object sender, BuildStatusEventArgs e);
+    }
 
-        public VisualizationService(VisualizationConfig[] visualizationConfigs, CancellationToken cancellationToken)
+    public class VisualizationService : IVisualizationService
+    {
+        internal readonly Visualization[] _visualizations;
+        private readonly IPwmController _pwmController;
+
+        public VisualizationService(VisualizationConfig[] visualizationConfigs, IPwmController pwmController)
         {
-            Task.Run(async () =>
+            _pwmController = pwmController;
+            _visualizations =
+               visualizationConfigs.Select(config => Visualization.FromConfig(config, _pwmController)).ToArray();
+        }
+
+        public void Run(CancellationToken cancellationToken)
+        {
+            foreach (var visualization in _visualizations)
             {
-                await InitPwm();
-
-                _visualizations =
-                    visualizationConfigs.Select(config => Visualization.FromConfig(config, _pwmController)).ToArray();
-
-                foreach (var visualization in _visualizations)
-                {
-                    Task.Run(() => { AnimateAsync(visualization, cancellationToken); });
-                }
-            }, cancellationToken);
+                Task.Run(() => { AnimateAsync(visualization, cancellationToken); });
+            }
         }
 
-        private async Task InitPwm()
+        internal static async void AnimateAsync(Visualization vis, CancellationToken cancellationToken)
         {
-            if (!LightningProvider.IsLightningEnabled)
-                return;
-
-            LowLevelDevicesController.DefaultProvider = LightningProvider.GetAggregateProvider();
-
-            var provider = LightningPwmProvider.GetPwmProvider();
-            var pwmControllers = await PwmController.GetControllersAsync(provider);
-            _pwmController = pwmControllers[1];
-            _pwmController.SetDesiredFrequency(100);
-        }
-
-        private static async void AnimateAsync(Visualization vis, CancellationToken cancellationToken)
-        {
-            await vis.RgbPinSet.SetColorAsync(Color.FromArgb(0,1,1,1));
+            await vis.RgbPinSet.SetColorAsync(Color.FromArgb(0, 1, 1, 1));
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 Debug.WriteLine($"  {vis.Name} Visualization state {vis.AnimatedVisualizationState}");
 
                 if (vis.AnimatedVisualizationState == AnimatedVisualizationStates.Failed && vis.TimeInState > TimeSpan.FromHours(1))
-                       vis.AnimatedVisualizationState = AnimatedVisualizationStates.FailedAlert;
+                    vis.AnimatedVisualizationState = AnimatedVisualizationStates.FailedAlert;
 
                 switch (vis.AnimatedVisualizationState)
                 {
