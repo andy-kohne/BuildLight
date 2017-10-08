@@ -1,7 +1,7 @@
 # BuildLight
-![Alt text](https://github.com/andy-kohne/BuildLight/raw/document/build_light_animated.gif "Animated Status Indicator")
-![Alt text](https://github.com/andy-kohne/BuildLight/raw/document/RaspberryPi_with_board_small.jpg "Raspberry Pi with daughter board")
-![Alt text](https://github.com/andy-kohne/BuildLight/raw/document/led_strips.jpg "LED strips")  
+![Alt text](https://github.com/andy-kohne/BuildLight/raw/master/build_light_animated.gif "Animated Status Indicator")
+![Alt text](https://github.com/andy-kohne/BuildLight/raw/master/RaspberryPi_with_board_small.jpg "Raspberry Pi with daughter board")
+![Alt text](https://github.com/andy-kohne/BuildLight/raw/master/led_strips.jpg "LED strips")  
 
 ### Project Description
 A Universal Windows Platform application intended to run under Windows IOT Core on a Raspberry Pi, driving external LED strips to indicate build / test status.
