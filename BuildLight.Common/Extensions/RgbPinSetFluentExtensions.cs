@@ -1,15 +1,15 @@
 using BuildLight.Common.Models;
+using BuildLight.Common.Services;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Devices.Pwm;
 using Windows.UI;
 
 namespace BuildLight.Common.Extensions
 {
     public static class RgbPinSetFluentExtensions
     {
-        public static RgbPinSet FromConfig(this RgbOutputPinSet pinSet, PwmController pwmController)
+        public static RgbPinSet FromConfig(this RgbOutputPinSet pinSet, IPwmController pwmController)
         {
             return new RgbPinSet
             {

@@ -3,7 +3,6 @@ using BuildLight.Common.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Windows.Devices.Pwm;
 
 namespace BuildLight.Common.Models
 {
@@ -28,7 +27,7 @@ namespace BuildLight.Common.Models
                             ? VisualizationStates.Succeeded
                             : VisualizationStates.None;
 
-        public static Visualization FromConfig(VisualizationConfig config, PwmController pwmController)
+        public static Visualization FromConfig(VisualizationConfig config, IPwmController pwmController)
         {
             return new Visualization
             {

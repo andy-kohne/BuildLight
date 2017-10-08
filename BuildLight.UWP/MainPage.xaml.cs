@@ -14,7 +14,7 @@ namespace BuildLight.UWP
     public sealed partial class MainPage : Page
     {
         readonly IBuildMonitorService _buildMonitorService;
-        readonly VisualizationService _visualizationService;
+        readonly IVisualizationService _visualizationService;
         readonly CancellationToken _cancellationToken;
 
         public MainPage()
@@ -24,8 +24,10 @@ namespace BuildLight.UWP
 
             var settings = GetSettingsAsync().Result;
             var tcApiClient = new TeamCityApiClient(settings.Host, settings.UserName, settings.Password);
+            var pwmController = PwmControllerProxy.GetGontroller().Result;
 
-            _visualizationService = new VisualizationService(settings.Visualizations, _cancellationToken);
+            _visualizationService = new VisualizationService(settings.Visualizations, pwmController);
+            _visualizationService.Run(_cancellationToken);
 
             _buildMonitorService = new BuildMonitorService(tcApiClient, settings);
             _buildMonitorService.BuildStatusEvent += _visualizationService.HandleBuildEvent;

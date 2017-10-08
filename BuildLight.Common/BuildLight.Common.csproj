@@ -118,6 +118,8 @@
     <Compile Include="Services\BuildMonitor\BuildStatusEventArgs.cs" />
     <Compile Include="Services\BuildMonitor\ServiceEventArgs.cs" />
     <Compile Include="Services\Enumerations.cs" />
+    <Compile Include="Services\PwmControllerProxy.cs" />
+    <Compile Include="Services\PwmPinProxy.cs" />
     <Compile Include="Services\TeamCity\AuthenticationException.cs" />
     <Compile Include="Services\TeamCity\Status.cs" />
     <Compile Include="Services\TeamCity\TeamCityApiClient.cs" />
