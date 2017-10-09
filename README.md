@@ -19,3 +19,4 @@ This application polls a build server at a customizable interval.  When changes 
 - Daughter board
    + Converts 12V to 5V for powering the Pi
    + Drives the LED strips from the logic level outputs
+![Alt text](https://github.com/andy-kohne/BuildLight/raw/master/schematic.png "Schematic")  
