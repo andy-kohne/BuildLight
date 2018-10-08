@@ -42,6 +42,8 @@ namespace BuildLight.Tests
                 }
             };
 
+        public Settings Settings => new Settings {Visualizations = Config};
+
         [Fact]
         public void Test_Service()
         {
@@ -55,7 +57,7 @@ namespace BuildLight.Tests
                 p.Setup(o => o.Start()).Verifiable();
             }
 
-            var svc = new VisualizationService(Config, _mockPwmController.Object);
+            var svc = new VisualizationService(Settings, _mockPwmController.Object);
 
             Assert.NotNull(svc);
 
@@ -69,7 +71,7 @@ namespace BuildLight.Tests
         [Fact]
         public void Test_BuildEventHanlder()
         {
-            var svc = new VisualizationService(Config, null);
+            var svc = new VisualizationService(Settings, null);
             Assert.NotNull(svc);
             Assert.Equal(VisualizationStates.None, svc._visualizations.Single().OverallState);
 

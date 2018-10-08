@@ -3,6 +3,7 @@ using BuildLight.Common.Models;
 using BuildLight.Common.Services.BuildMonitor;
 using BuildLight.Common.Services.TeamCity;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -22,11 +23,17 @@ namespace BuildLight.Common.Services
         internal readonly Visualization[] _visualizations;
         private readonly IPwmController _pwmController;
 
-        public VisualizationService(VisualizationConfig[] visualizationConfigs, IPwmController pwmController)
+        internal Dictionary<AnimatedVisualizationStates, Animation> effects;
+
+
+        public VisualizationService(Settings settings, IPwmController pwmController)
+
         {
             _pwmController = pwmController;
             _visualizations =
-               visualizationConfigs.Select(config => Visualization.FromConfig(config, _pwmController)).ToArray();
+               settings.Visualizations.Select(config => Visualization.FromConfig(config, _pwmController)).ToArray();
+
+            effects = Animations.GetEffects(settings);
         }
 
         public void Run(CancellationToken cancellationToken)
@@ -37,7 +44,8 @@ namespace BuildLight.Common.Services
             }
         }
 
-        internal static async void AnimateAsync(Visualization vis, CancellationToken cancellationToken)
+ 
+        internal async void AnimateAsync(Visualization vis, CancellationToken cancellationToken)
         {
             await vis.RgbPinSet.SetColorAsync(Color.FromArgb(0, 1, 1, 1));
 
@@ -48,67 +56,8 @@ namespace BuildLight.Common.Services
                 if (vis.AnimatedVisualizationState == AnimatedVisualizationStates.Failed && vis.TimeInState > TimeSpan.FromHours(1))
                     vis.AnimatedVisualizationState = AnimatedVisualizationStates.FailedAlert;
 
-                switch (vis.AnimatedVisualizationState)
-                {
-                    case AnimatedVisualizationStates.None:
-                        await vis.RgbPinSet.SetColorAsync(Colors.Black)
-                                           .HoldAsync(TimeSpan.FromSeconds(3), cancellationToken);
-                        break;
-
-                    case AnimatedVisualizationStates.Failed:
-                        await vis.RgbPinSet.SetColorAsync(Colors.Red)
-                                           .HoldAsync(TimeSpan.FromSeconds(3), cancellationToken);
-                        break;
-
-                    case AnimatedVisualizationStates.Succeeded:
-                        await vis.RgbPinSet.SetColorAsync(Colors.Green)
-                                           .HoldAsync(TimeSpan.FromSeconds(3), cancellationToken);
-                        break;
-
-                    case AnimatedVisualizationStates.Building:
-                        await vis.RgbPinSet.SetColorAsync(Colors.Blue)
-                                           .HoldAsync(TimeSpan.FromSeconds(3), cancellationToken);
-                        break;
-
-                    case AnimatedVisualizationStates.FailedBuilding:
-                        await vis.RgbPinSet.SetColorAsync(Colors.Red)
-                                           .HoldAsync(TimeSpan.FromSeconds(2), cancellationToken)
-                                           .FadeToColorAsync(Colors.Blue, TimeSpan.FromMilliseconds(60), 30, cancellationToken)
-                                           .HoldAsync(TimeSpan.FromSeconds(1), cancellationToken);
-                        break;
-
-                    case AnimatedVisualizationStates.SuccessBuilding:
-                        await vis.RgbPinSet.SetColorAsync(Colors.Green)
-                                           .HoldAsync(TimeSpan.FromSeconds(2), cancellationToken)
-                                           .FadeToColorAsync(Colors.Blue, TimeSpan.FromMilliseconds(60), 30, cancellationToken)
-                                           .HoldAsync(TimeSpan.FromSeconds(1), cancellationToken);
-                        break;
-
-                    case AnimatedVisualizationStates.FailedAlert:
-                        await vis.RgbPinSet.SetColorAsync(Colors.Red)
-                                           .HoldAsync(TimeSpan.FromSeconds(1), cancellationToken)
-                                           .FadeToColorAsync(Colors.Black, TimeSpan.FromMilliseconds(20), 10, cancellationToken)
-                                           .HoldAsync(TimeSpan.FromSeconds(1), cancellationToken)
-                                           .FadeToColorAsync(Colors.Red, TimeSpan.FromMilliseconds(20), 10, cancellationToken);
-                        break;
-
-                    case AnimatedVisualizationStates.StartingUp:
-                        await vis.RgbPinSet.SetColorAsync(Colors.Black)
-                                           .HoldAsync(TimeSpan.FromSeconds(1), cancellationToken)
-                                           .FadeToColorAsync(Colors.Red, TimeSpan.FromMilliseconds(20), 10, cancellationToken)
-                                           .HoldAsync(TimeSpan.FromSeconds(1), cancellationToken)
-                                           .FadeToColorAsync(Colors.Black, TimeSpan.FromMilliseconds(20), 10, cancellationToken)
-                                           .HoldAsync(TimeSpan.FromSeconds(1), cancellationToken)
-                                           .FadeToColorAsync(Colors.Green, TimeSpan.FromMilliseconds(20), 10, cancellationToken)
-                                           .HoldAsync(TimeSpan.FromSeconds(1), cancellationToken)
-                                           .FadeToColorAsync(Colors.Black, TimeSpan.FromMilliseconds(20), 10, cancellationToken)
-                                           .HoldAsync(TimeSpan.FromSeconds(1), cancellationToken)
-                                           .FadeToColorAsync(Colors.Blue, TimeSpan.FromMilliseconds(20), 10, cancellationToken)
-                                           .HoldAsync(TimeSpan.FromSeconds(1), cancellationToken)
-                                           .FadeToColorAsync(Colors.Black, TimeSpan.FromMilliseconds(20), 10, cancellationToken);
-
-                        break;
-                }
+                var effect = effects[vis.AnimatedVisualizationState];
+                await effect.Run(vis.RgbPinSet, cancellationToken);
             }
 
             await vis.RgbPinSet.SetColorAsync(Colors.Black);

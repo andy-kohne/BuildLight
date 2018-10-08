@@ -1,9 +1,9 @@
 ﻿{
   "dependencies": {
     "Microsoft.IoT.Lightning": "1.1.0",
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.3.3",
     "Moq": "4.7.99",
     "System.Diagnostics.TraceSource": "4.0.0",
-    "System.Net.Http": "4.1.0",
     "System.Reflection": "4.3.0",
     "xunit": "2.2.0"
   },

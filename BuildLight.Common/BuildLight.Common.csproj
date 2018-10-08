@@ -117,6 +117,7 @@
     <Compile Include="Services\BuildMonitor\BuildMonitorService.cs" />
     <Compile Include="Services\BuildMonitor\BuildStatusEventArgs.cs" />
     <Compile Include="Services\BuildMonitor\ServiceEventArgs.cs" />
+    <Compile Include="Services\Animation.cs" />
     <Compile Include="Services\Enumerations.cs" />
     <Compile Include="Services\PwmControllerProxy.cs" />
     <Compile Include="Services\PwmPinProxy.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="Services\TeamCity\Status.cs" />
     <Compile Include="Services\TeamCity\TeamCityApiClient.cs" />
     <Compile Include="Services\VisualizationService.cs" />
+    <Compile Include="SettingsService.cs" />
     <EmbeddedResource Include="Properties\BuildLight.Common.rd.xml" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
