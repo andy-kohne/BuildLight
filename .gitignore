@@ -233,3 +233,7 @@ _Pvt_Extensions
 src/webdeploy/
 
 [Cc]orpus/
+
+*.nuget.targets
+*.nuget.props
+
