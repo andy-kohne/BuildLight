@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Xaml.Controls;
+using BuildLight.Common;
 
 namespace BuildLight.UWP
 {
@@ -29,7 +30,7 @@ namespace BuildLight.UWP
             var settings = settingsTask.Result;
             var tcApiClient = new TeamCityApiClient(settings.Host, settings.UserName, settings.Password);
 
-            _visualizationService = new VisualizationService(settings.Visualizations, pwmController);
+            _visualizationService = new VisualizationService(settings, pwmController);
             _visualizationService.Run(_cancellationToken);
 
             _buildMonitorService = new BuildMonitorService(tcApiClient, settings);
@@ -37,11 +38,12 @@ namespace BuildLight.UWP
             _buildMonitorService.MonitorAsync(_cancellationToken);
         }
 
-        private async Task<Settings> GetSettingsAsync()
+        public static async Task<Settings> GetSettingsAsync()
         {
             var file = await ApplicationData.Current.LocalFolder.GetFileAsync("settings.json");
             var text = await FileIO.ReadTextAsync(file);
-            return text.ConvertJsonTo<Settings>();
+            return SettingsService.ReadSettings(text);
         }
+
     }
 }
